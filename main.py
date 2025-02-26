@@ -3,23 +3,19 @@ import asyncio
 from aiogram import Bot, Dispatcher, types
 from aiogram.types import CallbackQuery
 
-TOKEN = "YOUR_BOT_TOKEN"
-MAIN_GROUP_ID = YOUR_GROUP_ID  # ID главной группы
+TOKEN = "7111396804:AAH9_Y1mKMdBxMAva_s9jMOe_1hMjTge5VY"
+MAIN_GROUP_ID = -4624059660  # ID главной группы
 
 bot = Bot(token=TOKEN)
 dp = Dispatcher()
 
 # Словарь соответствия филиалов и групп
 FILIAL_GROUPS = {
-    "YOUR_GROUP_NAME": YOUR_GROUP_ID,  # ID группы для feed up
-    "YOUR_GROUP_NAME": -YOUR_GROUP_ID,  # ID группы для oqtepa
+    "feed up": -1002190451115,  # ID группы для feed up
+    "yuboring": -1002190451115,  # ID группы для feed up
+    "PAYITAHT RESTAURANT": -4758720469,  # ID группы для oqtepa
     # Добавляй другие филиалы
 }
-
-@dp.message()
-async def debug_messages(message: types.Message):
-    print(f"Получено сообщение из чата {message.chat.id}: {message.text}")
-
 
 @dp.message()
 async def process_order(message: types.Message):
@@ -38,8 +34,8 @@ async def process_order(message: types.Message):
     filial = None
 
     for line in lines:
-        if line.strip().startswith("Yaqin filial:"):
-            filial = line.replace("Yaqin filial:", "").strip().lower()
+        if line.strip().startswith("Do'stlaringizga"):
+            filial = "yuboring"
             break
 
     if filial:
@@ -48,27 +44,22 @@ async def process_order(message: types.Message):
 
         if group_id:
             print(f"📤 Отправляю заказ в группу {group_id}...")
-            await bot.send_message(
-                chat_id=group_id,
-                text=text
-            )
-            print("✅ Сообщение отправлено!")
+            # Форвардим сообщение вместе с инлайн кнопками
+            await message.forward(chat_id=group_id)
+            print("✅ Сообщение переслано!")
         else:
             print("⚠️ Филиал не найден в FILIAL_GROUPS!")
     else:
         print("🚨 Не удалось найти филиал в сообщении!")
 
-
-# ✅ Обработчик inline-кнопок (в любой группе)
 @dp.callback_query()
 async def handle_callback(query: CallbackQuery):
     await query.answer(f"Вы нажали: {query.data}")
     await bot.send_message(query.message.chat.id, f"Обработан клик: {query.data}")
 
-
 async def main():
-    await dp.start_polling(bot)  # ✅ Запускаем бота
-
+    await dp.start_polling(bot)
 
 if __name__ == "__main__":
-    asyncio.run(main())  # 🚀 Запускаем бота
+    asyncio.run(main())
+
